@@ -1,0 +1,545 @@
+USE fs;
+
+-- 1
+SELECT ename, sal FROM emp WHERE job = 'SALESMAN' AND sal > 1500;
+
+-- 2
+SELECT ename, job FROM emp WHERE job = 'MANAGER' OR job = 'ANALYST';
+
+-- 3
+SELECT * FROM emp WHERE deptno != 20;
+
+-- 4
+SELECT ename, job, comm FROM emp WHERE job = 'CLERK' OR comm > 1000;
+
+-- 5
+SELECT ename, job FROM emp WHERE job NOT IN ('CLERK','SALESMAN');
+
+-- 6
+SELECT ename, sal FROM emp WHERE sal BETWEEN 1000 AND 3000;
+
+-- 7
+SELECT ename, hiredate FROM emp 
+WHERE hiredate BETWEEN '1995-01-01' AND '1999-12-31';
+
+-- 8
+SELECT ename, comm FROM emp WHERE comm BETWEEN 300 AND 1000;
+
+-- 9
+SELECT ename, deptno FROM emp WHERE deptno BETWEEN 20 AND 40;
+
+-- 10
+SELECT * FROM salgrade WHERE grade BETWEEN 2 AND 4;
+
+-- 11
+SELECT ename, job, sal FROM emp 
+WHERE job != 'MANAGER' AND sal < 2000;
+
+-- 12
+SELECT empno, ename, job FROM emp WHERE mgr IS NULL;
+
+-- 13
+SELECT empno, ename, hiredate FROM emp 
+WHERE (job='CLERK' OR job='ANALYST') 
+AND hiredate BETWEEN '1996-01-01' AND '2000-12-31';
+
+-- 14
+SELECT ename, mgr, sal FROM emp 
+WHERE (mgr=7788 OR mgr=7566) AND sal >= 3000;
+
+-- 15
+SELECT * FROM emp WHERE ename LIKE '%ar%';
+
+-- 16
+SELECT * FROM emp WHERE ename LIKE 'K____';
+
+-- 17
+SELECT * FROM emp WHERE ename NOT LIKE '%n';
+
+-- 18
+SELECT * FROM emp WHERE ename LIKE 'C%' OR ename LIKE 'S%';
+
+-- 19
+SELECT SUM(sal) AS totalpay, SUM(comm) AS totalBonus 
+FROM emp WHERE deptno = 30;
+
+-- 20
+SELECT MAX(sal) AS HighestPay, MIN(sal) AS lowestPay 
+FROM emp WHERE deptno IN (20,40);
+
+-- 21
+SELECT ename, sal FROM emp 
+WHERE sal > (SELECT AVG(sal) FROM emp);
+
+-- 22
+SELECT ename, sal FROM emp 
+WHERE sal = (SELECT MAX(sal) FROM emp);
+
+-- 23
+SELECT ename, sal, deptno FROM emp 
+WHERE sal > (SELECT MAX(sal) FROM emp WHERE deptno = 10);
+
+-- 24
+SELECT ename, job FROM emp 
+WHERE job IN (SELECT job FROM emp WHERE ename='FORD');
+
+-- 25
+SELECT d.deptno, d.dname 
+FROM dept d 
+WHERE EXISTS (
+  SELECT 1 FROM emp e 
+  WHERE e.deptno = d.deptno AND e.sal > 3000
+);
+
+-- 26
+SELECT ename, hiredate FROM emp 
+WHERE hiredate < ALL (SELECT hiredate FROM emp WHERE deptno = 30);
+
+-- 27
+SELECT e.ename, e.deptno 
+FROM emp e JOIN dept d 
+ON e.deptno = d.deptno 
+WHERE d.location = 'Dallas';
+
+-- 28
+SELECT MAX(sal) AS second_highest_salary 
+FROM emp 
+WHERE sal < (SELECT MAX(sal) FROM emp);
+
+-- 29
+SELECT ename, mgr 
+FROM emp 
+WHERE mgr = (SELECT mgr FROM emp WHERE ename='BLAKE');
+
+-- 30
+SELECT d.dname 
+FROM dept d LEFT JOIN emp e 
+ON d.deptno = e.deptno 
+WHERE e.empno IS NULL;
+
+-- 31
+SELECT deptno, COUNT(*) AS employee_count 
+FROM emp 
+GROUP BY deptno 
+ORDER BY employee_count DESC 
+LIMIT 1;
+
+-- 32
+SELECT d.dname 
+FROM emp e JOIN dept d 
+ON e.deptno = d.deptno 
+WHERE e.ename = 'JONES';
+
+-- 33
+SELECT ename, empno 
+FROM emp 
+WHERE ename LIKE '%A%';
+
+-- 34
+SELECT ename, empno, sal, comm 
+FROM emp 
+WHERE comm > sal;
+
+-- 35
+SELECT e.ename, e.empno, e.comm 
+FROM emp e JOIN emp m 
+ON e.mgr = m.empno 
+WHERE e.comm IS NULL AND m.comm IS NOT NULL;
+
+-- 36
+SELECT deptno, COUNT(*) AS employees_with_manager
+FROM emp
+WHERE mgr IS NOT NULL
+GROUP BY deptno
+HAVING COUNT(*) > (
+  SELECT AVG(cnt)
+  FROM (
+    SELECT COUNT(*) AS cnt
+    FROM emp
+    WHERE mgr IS NOT NULL
+    GROUP BY deptno
+  ) t
+);
+
+-- 37
+SELECT MAX(sal) - (
+  SELECT MAX(sal) FROM emp 
+  WHERE sal < (SELECT MAX(sal) FROM emp)
+) AS salary_difference 
+FROM emp;
+
+-- 38
+SELECT SUM(sal) AS Total_Salary, 
+       SUM(comm) AS Total_Commission 
+FROM emp;
+
+-- 39
+SELECT deptno, AVG(sal) AS avg_salary, 
+       AVG(comm) AS avg_commission 
+FROM emp 
+GROUP BY deptno;
+
+-- 40
+SELECT AVG(sal) AS avg_salary_with_comm 
+FROM emp 
+WHERE comm IS NOT NULL;
+
+-- 41
+SELECT MIN(comm) AS min_commission 
+FROM emp 
+WHERE comm IS NOT NULL;
+
+-- 42
+SELECT SUM(comm) AS total_comm_post_1995 
+FROM emp 
+WHERE hiredate > '1995-12-31';
+
+-- 43
+SELECT MAX(hiredate) AS latest_hire 
+FROM emp;
+
+-- 44
+SELECT AVG(comm) AS avg_salesman_comm 
+FROM emp 
+WHERE job='SALESMAN' AND comm IS NOT NULL;
+
+-- 45
+SELECT MIN(sal) AS min_salary_90s 
+FROM emp 
+WHERE hiredate BETWEEN '1990-01-01' AND '1999-12-31';
+
+-- 46
+SELECT SUM(sal) AS total_salary_k 
+FROM emp 
+WHERE ename LIKE 'K%';
+
+-- 47
+SELECT YEAR(hiredate) AS hire_year, 
+       COUNT(*) AS hires_per_year 
+FROM emp 
+GROUP BY YEAR(hiredate);
+
+-- 48
+SELECT SUM(comm) AS total_comm_low_salary 
+FROM emp 
+WHERE sal < 1500;
+
+-- 49
+SELECT ename, sal, comm 
+FROM emp 
+WHERE comm IS NULL AND sal > 2500;
+
+-- 50
+SELECT deptno, AVG(sal), COUNT(*) 
+FROM emp 
+GROUP BY deptno 
+ORDER BY AVG(sal) DESC;
+
+-- 51
+SELECT job, SUM(sal), COUNT(*) 
+FROM emp 
+WHERE job != 'CLERK' 
+GROUP BY job;
+
+-- 52
+SELECT deptno, SUM(sal) 
+FROM emp 
+GROUP BY deptno 
+HAVING SUM(sal) > 5000 
+ORDER BY deptno;
+
+-- 53
+SELECT job, COUNT(*) 
+FROM emp 
+GROUP BY job 
+ORDER BY job;
+
+-- 54
+SELECT deptno, MIN(sal), MAX(sal) 
+FROM emp 
+WHERE deptno != 20 
+GROUP BY deptno;
+
+-- 55
+SELECT deptno, SUM(sal), COUNT(*) 
+FROM emp 
+GROUP BY deptno 
+HAVING COUNT(*) > 3 
+ORDER BY SUM(sal) DESC;
+
+-- 56
+SELECT job, SUM(comm), AVG(sal) 
+FROM emp 
+GROUP BY job 
+HAVING COUNT(*) >= 2;
+
+USE fs;
+
+-- 57
+SELECT * 
+FROM emp 
+ORDER BY hiredate DESC, sal DESC;
+
+-- 58
+SELECT deptno, job, SUM(sal) 
+FROM emp 
+WHERE job != 'PRESIDENT'
+GROUP BY deptno, job;
+
+-- 59
+SELECT deptno, AVG(sal) 
+FROM emp 
+GROUP BY deptno
+HAVING AVG(sal) > 2000
+ORDER BY AVG(sal);
+
+-- 60
+SELECT deptno, COUNT(*), SUM(sal) 
+FROM emp 
+GROUP BY deptno
+HAVING SUM(sal) > 4000;
+
+-- 61
+SELECT e.*, d.dname
+FROM emp e
+JOIN dept d ON e.deptno = d.deptno
+WHERE e.deptno IN (
+    SELECT deptno 
+    FROM emp 
+    GROUP BY deptno 
+    HAVING COUNT(*) > 2
+);
+
+-- 62
+SELECT job, AVG(sal)
+FROM emp
+WHERE deptno != 10
+GROUP BY job
+ORDER BY job;
+
+-- 63
+SELECT deptno, SUM(sal), COUNT(*)
+FROM emp
+WHERE ename != 'FORD'
+GROUP BY deptno;
+
+-- 64
+SELECT job, SUM(sal)
+FROM emp
+GROUP BY job
+HAVING SUM(sal) < 10000
+ORDER BY SUM(sal) DESC;
+
+-- 65
+SELECT *
+FROM emp
+ORDER BY sal DESC, ename ASC;
+
+-- 66
+SELECT deptno, MAX(sal), COUNT(*)
+FROM emp
+GROUP BY deptno
+HAVING COUNT(*) > 2;
+
+-- 67
+SELECT deptno, SUM(comm) AS total_comm
+FROM emp
+WHERE deptno != 40
+GROUP BY deptno
+ORDER BY total_comm;
+
+-- 68
+SELECT deptno, AVG(sal), COUNT(job)
+FROM emp
+GROUP BY deptno
+ORDER BY deptno, AVG(sal) DESC;
+
+-- 69
+SELECT deptno, SUM(sal)
+FROM emp
+WHERE job != 'SALESMAN'
+GROUP BY deptno
+HAVING SUM(sal) > 3000
+ORDER BY SUM(sal);
+
+-- 70
+SELECT e.ename, d.dname
+FROM emp e
+INNER JOIN dept d ON e.deptno = d.deptno
+WHERE e.sal > 2000;
+
+-- 71
+SELECT e.ename, d.location
+FROM emp e
+LEFT JOIN dept d ON e.deptno = d.deptno;
+
+-- 72
+SELECT d.deptno, d.dname, COUNT(e.empno) AS emp_count
+FROM emp e
+RIGHT JOIN dept d ON e.deptno = d.deptno
+GROUP BY d.deptno, d.dname;
+
+-- 73 (FULL OUTER JOIN simulation)
+SELECT e.empno, e.ename, d.deptno, d.dname
+FROM emp e
+LEFT JOIN dept d ON e.deptno = d.deptno
+
+UNION
+
+SELECT e.empno, e.ename, d.deptno, d.dname
+FROM emp e
+RIGHT JOIN dept d ON e.deptno = d.deptno;
+
+-- 74 (Managers using self join)
+SELECT DISTINCT m.ename AS manager
+FROM emp e
+JOIN emp m ON e.mgr = m.empno;
+
+-- 75 (CROSS JOIN)
+SELECT e.ename, d.dname
+FROM emp e
+CROSS JOIN dept d;
+
+-- 76 (EXISTS)
+SELECT d.deptno, d.dname
+FROM dept d
+WHERE EXISTS (
+    SELECT 1 
+    FROM emp e 
+    WHERE e.deptno = d.deptno AND e.sal > 2500
+);
+
+-- 77 (NOT EXISTS)
+SELECT d.dname, d.deptno
+FROM dept d
+WHERE NOT EXISTS (
+    SELECT 1 
+    FROM emp e 
+    WHERE e.deptno = d.deptno AND e.sal < 1000
+);
+
+-- 78 (Managers in New York)
+SELECT m.ename AS manager_name, COUNT(e.empno) AS emp_count
+FROM emp e
+JOIN emp m ON e.mgr = m.empno
+JOIN dept d ON e.deptno = d.deptno
+WHERE d.location = 'New York'
+GROUP BY m.ename;
+
+-- 79 (FULL JOIN with location)
+SELECT e.empno, e.ename, d.deptno, d.dname, d.location
+FROM emp e
+LEFT JOIN dept d ON e.deptno = d.deptno
+
+UNION
+
+SELECT e.empno, e.ename, d.deptno, d.dname, d.location
+FROM emp e
+RIGHT JOIN dept d ON e.deptno = d.deptno;
+
+USE fs;
+
+SELECT e.ename, d.dname
+FROM emp e, dept d
+WHERE e.deptno = d.deptno
+ORDER BY e.ename;
+
+
+USE fs;
+
+SELECT d.deptno, d.dname
+FROM dept d
+LEFT JOIN emp e ON d.deptno = e.deptno
+WHERE e.empno IS NULL;
+
+
+USE fs;
+
+SELECT d.dname AS Department, d.location AS Location
+FROM dept d
+LEFT JOIN emp e ON d.deptno = e.deptno
+WHERE e.empno IS NULL;
+
+
+USE fs;
+
+SELECT e.ename, d.dname, e.hiredate
+FROM emp e
+INNER JOIN dept d ON e.deptno = d.deptno
+WHERE e.hiredate > '1980-12-31';
+
+
+USE fs;
+
+SELECT d.deptno, d.dname, COUNT(e.empno) AS emp_count
+FROM dept d
+INNER JOIN emp e ON d.deptno = e.deptno
+GROUP BY d.deptno, d.dname
+HAVING COUNT(e.empno) > 3;
+
+
+USE fs;
+
+SELECT d.deptno, d.dname, AVG(e.sal) AS avg_salary
+FROM dept d
+INNER JOIN emp e ON d.deptno = e.deptno
+GROUP BY d.deptno, d.dname;
+
+
+USE fs;
+
+SELECT e.ename AS employee, m.ename AS manager
+FROM emp e
+LEFT JOIN emp m ON e.mgr = m.empno;
+
+
+USE fs;
+
+SELECT e.ename, d.dname
+FROM emp e
+JOIN dept d ON e.deptno = d.deptno
+
+UNION ALL
+
+SELECT e.ename, d.dname
+FROM emp e
+JOIN dept d ON e.deptno = d.deptno;
+
+
+USE fs;
+
+SELECT d.deptno, d.dname
+FROM emp e
+RIGHT JOIN dept d ON e.deptno = d.deptno
+WHERE e.empno IS NULL;
+
+
+
+USE fs;
+
+SELECT d.deptno, d.dname, 
+       SUM(e.sal) AS total_salary, 
+       COUNT(e.empno) AS employee_count
+FROM dept d
+JOIN emp e ON d.deptno = e.deptno
+GROUP BY d.deptno, d.dname;
+
+
+USE fs;
+
+SELECT d.dname, 
+       COUNT(e.empno) AS num_employees,
+       SUM(e.sal) AS total_salary
+FROM dept d
+JOIN emp e ON d.deptno = e.deptno
+GROUP BY d.dname;
+
+
+USE fs;
+
+SELECT e.ename, d.dname
+FROM emp e
+INNER JOIN dept d ON e.deptno = d.deptno
+WHERE d.location = 'Chicago';
+
+
